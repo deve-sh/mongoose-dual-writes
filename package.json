@@ -1,0 +1,10 @@
+{
+  "name": "mongoose-multiple-connections-utils",
+  "version": "1.0.0",
+  "description": "Utils to help you work with multiple MongoDB connections like dual-writes and automatic connection initializers",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
