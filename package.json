@@ -6,5 +6,10 @@
   "scripts": {},
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "mongoose": "^7.6.1",
+    "tsc": "^2.0.4",
+    "typescript": "^5.2.2"
+  }
 }
