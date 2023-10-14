@@ -28,7 +28,9 @@ function Model(modelName: string, schema: Schema) {
 	const returnObj = {};
 
 	for (const modifierFunc of modifierFunctions) {
-		returnObj[modifierFunc] = async (...args: any[]) => {
+		returnObj[modifierFunc] = async (
+			...args: MongooseModel<any>[Partial<keyof MongooseModel<any>>][]
+		) => {
 			// Preferrably create a transaction for each model connection and cancel all transactions if any operation fails.
 
 			const promises: any[] = [];
