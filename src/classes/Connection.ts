@@ -9,7 +9,7 @@ class Connection {
 		this.mongooseNativeConnection = createdConnection;
 	}
 
-	public get connectionObject() {
+	public get nativeConnection() {
 		return this.mongooseNativeConnection;
 	}
 }

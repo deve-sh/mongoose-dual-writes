@@ -1,7 +1,7 @@
-import type {
-	ConnectOptions,
-	Connection as MongooseConnection,
-	Mongoose,
+import {
+	type ConnectOptions,
+	type Connection as MongooseConnection,
+	createConnection,
 } from "mongoose";
 
 import Connection from "../classes/Connection";
@@ -18,9 +18,9 @@ class MultipleConnectionsManager {
 	static errored: boolean = false;
 	static connectionErrors: Error[] = [];
 	static connections: Connection[] = [];
-	static primaryReaderConnection: Connection;
+	static primaryConnection: Connection;
 
-	async initialize(mongoose: Mongoose, args: InitArgs) {
+	constructor(args: InitArgs) {
 		if (MultipleConnectionsManager.initialized)
 			throw new Error(
 				"Multiple connections manager has already been initialized. Please check your source code for duplicate calls."
@@ -42,40 +42,39 @@ class MultipleConnectionsManager {
 			(connection) => connection.options.enabled
 		);
 		for (const connection of enabledConnectionArgs)
-			connectionPromises.push(
-				mongoose.createConnection.apply(null, connection)
-			);
-		const connectionResults = await Promise.allSettled(connectionPromises);
+			connectionPromises.push(createConnection.apply(null, connection));
 
-		// Check for any errors and keep adding them or results to the static connection list.
-		for (let i = 0; i < connectionResults.length; i++) {
-			const result = connectionResults[i];
-			const originalConnectionURI = enabledConnectionArgs[i].uri;
-			const isReaderConnection =
-				originalConnectionURI === connectionToReadFrom.uri;
+		Promise.allSettled(connectionPromises).then((connectionResults) => {
+			// Check for any errors and keep adding them or results to the static connection list.
+			for (let i = 0; i < connectionResults.length; i++) {
+				const result = connectionResults[i];
+				const originalConnectionURI = enabledConnectionArgs[i].uri;
+				const isReaderConnection =
+					originalConnectionURI === connectionToReadFrom.uri;
 
-			if (result.status === "rejected") {
-				MultipleConnectionsManager.errored = true;
-				MultipleConnectionsManager.connectionErrors.push(result.reason);
-			} else {
-				const connectionClass = new Connection(result.value);
-				
-				MultipleConnectionsManager.connections.push(connectionClass);
-				if (isReaderConnection)
-					MultipleConnectionsManager.primaryReaderConnection = connectionClass;
+				if (result.status === "rejected") {
+					MultipleConnectionsManager.errored = true;
+					MultipleConnectionsManager.connectionErrors.push(result.reason);
+				} else {
+					const connectionClass = new Connection(result.value);
+
+					MultipleConnectionsManager.connections.push(connectionClass);
+					if (isReaderConnection)
+						MultipleConnectionsManager.primaryConnection = connectionClass;
+				}
 			}
-		}
 
-		if (MultipleConnectionsManager.errored) {
-			console.error(
-				"The following connection errors were received: ",
-				MultipleConnectionsManager.connectionErrors
-			);
-			throw new Error("Failed to connect to MongoDB");
-		}
+			if (MultipleConnectionsManager.errored) {
+				console.error(
+					"The following connection errors were received: ",
+					MultipleConnectionsManager.connectionErrors
+				);
+				throw new Error("Failed to connect to MongoDB");
+			}
 
-		return MultipleConnectionsManager.connections;
+			return MultipleConnectionsManager.connections;
+		});
 	}
 }
 
-export default new MultipleConnectionsManager();
+export default MultipleConnectionsManager;
