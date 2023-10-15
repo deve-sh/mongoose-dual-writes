@@ -1,6 +1,6 @@
 {
 	"name": "mongoose-dual-writes",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "Utils to help you achieve dual-writes with Mongoose",
 	"main": "index.js",
 	"scripts": {

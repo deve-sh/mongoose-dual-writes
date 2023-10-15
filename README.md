@@ -10,6 +10,8 @@ You could use [MongoSync](https://www.mongodb.com/docs/cluster-to-cluster-sync/c
 
 This library bridges those gaps and adds a zero-change MongoDB write replication for codebases reliant on Mongoose! 🌟
 
+> **Note and Warning**: The library uses `mongoose.set('debug')` so if you have any debug statements turned on, this would overwrite them. Please be mindful of that. If you need [debug statements](https://www.mongodb.com/docs/atlas/app-services/triggers/database-triggers/), prefer using MongoDB triggers for your migration.
+
 ### Installation
 
 ```bash
@@ -17,8 +19,6 @@ npm i mongoose-dual-writes
 ```
 
 ### Get Started
-
-The library relies on listening to `mongoose.set('debug')` for operation logs and then natively executing those commands to the other mongoose connections.
 
 ```javascript
 const MongoDBDualWrites = require('mongoose-dual-writes');
