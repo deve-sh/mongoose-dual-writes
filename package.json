@@ -1,17 +1,30 @@
 {
 	"name": "mongoose-multiple-connections-utils",
-	"version": "1.0.0",
-	"description": "Utils to help you work with multiple MongoDB connections like dual-writes and automatic connection initializers",
+	"version": "0.0.1",
+	"description": "Utils to help you achieve dual-writes with Mongoose",
 	"main": "index.js",
 	"scripts": {
 		"compile": "tsup",
 		"pre-publish": "npm run compile && node scripts/pre-publish",
-		"publish-as-package": "npm run pre-publish && cd ./dist && npm publish"
+		"publish-as-package": "npm run pre-publish && cd ./dist && npm publish",
+		"test": "jest"
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"keywords": [
+		"MongoDB",
+		"Mongoose",
+		"Dual Writes",
+		"Database"
+	],
+	"author": "Devesh Kumar <contact@devesh.tech>",
+	"license": "MIT",
 	"devDependencies": {
+		"@babel/core": "^7.23.2",
+		"@babel/preset-env": "^7.23.2",
+		"@babel/preset-typescript": "^7.23.2",
+		"@shelf/jest-mongodb": "^4.1.7",
+		"@types/jest": "^29.5.5",
+		"babel-jest": "^29.7.0",
+		"jest": "^29.7.0",
 		"mongoose": "^7.6.1",
 		"tsc": "^2.0.4",
 		"tsup": "^7.2.0",
