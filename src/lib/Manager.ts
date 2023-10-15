@@ -26,8 +26,12 @@ class DualMongooseWritesManager {
 			throw new Error(
 				"Dual writes manager has already been initialized. Please check your source code for duplicate calls."
 			);
-
 		DualMongooseWritesManager.initialized = true;
+
+		if (!args || !args.secondaryConnections)
+			throw new Error(
+				"Dual writes manager is not passed any secondary connection URIs."
+			);
 
 		const connectionPromises: Promise<MongooseConnection>[] = [];
 		const parametersForEnabledConnections = args.secondaryConnections.filter(
@@ -71,6 +75,13 @@ class DualMongooseWritesManager {
 				Promise.allSettled(opPromises);
 			});
 		});
+	}
+
+	async terminate() {
+		const closingPromises: Promise<any>[] = [];
+		for (const connection of DualMongooseWritesManager.secondaryConnections)
+			closingPromises.push(connection.nativeConnection.close());
+		await Promise.all(closingPromises);
 	}
 }
 
