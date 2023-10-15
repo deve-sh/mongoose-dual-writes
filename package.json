@@ -3,13 +3,18 @@
 	"version": "1.0.0",
 	"description": "Utils to help you work with multiple MongoDB connections like dual-writes and automatic connection initializers",
 	"main": "index.js",
-	"scripts": {},
+	"scripts": {
+		"compile": "tsup",
+		"pre-publish": "npm run compile && node scripts/pre-publish",
+		"publish-as-package": "npm run pre-publish && cd ./dist && npm publish"
+	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
 		"mongoose": "^7.6.1",
 		"tsc": "^2.0.4",
+		"tsup": "^7.2.0",
 		"typescript": "^5.2.2"
 	},
 	"peerDependencies": {
