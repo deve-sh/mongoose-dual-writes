@@ -1,5 +1,5 @@
 {
-	"name": "mongoose-multiple-connections-utils",
+	"name": "mongoose-dual-writes",
 	"version": "0.0.1",
 	"description": "Utils to help you achieve dual-writes with Mongoose",
 	"main": "index.js",
