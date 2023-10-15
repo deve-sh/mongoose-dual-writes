@@ -13,14 +13,14 @@ type InitArgs = {
 };
 
 class DualMongooseWritesManager {
-	static initialized: boolean = false;
-	static errored: boolean = false;
-	static connectionErrors: Error[] = [];
-	static secondaryConnections: Connection[] = [];
-	static unsubscribeFromOpLogs: () => void;
+	initialized: boolean = false;
+	errored: boolean = false;
+	connectionErrors: Error[] = [];
+	secondaryConnections: Connection[] = [];
+	unsubscribeFromOpLogs: () => void;
 
 	async initialize(args: InitArgs) {
-		if (DualMongooseWritesManager.initialized)
+		if (this.initialized)
 			throw new Error(
 				"Dual writes manager has already been initialized. Please check your source code for duplicate calls."
 			);
@@ -30,7 +30,7 @@ class DualMongooseWritesManager {
 				"Dual writes manager is not passed any secondary connection URIs."
 			);
 
-		DualMongooseWritesManager.initialized = true;
+		this.initialized = true;
 		const parametersForEnabledConnections = args.secondaryConnections.filter(
 			(connection) => !connection.options || !connection.options.enabled
 		);
@@ -41,27 +41,27 @@ class DualMongooseWritesManager {
 			);
 			if (result) {
 				const connectionClass = new Connection(result);
-				DualMongooseWritesManager.secondaryConnections.push(connectionClass);
+				this.secondaryConnections.push(connectionClass);
 			} else {
 				// Check for any errors and keep adding them or results to the static connection list.
-				DualMongooseWritesManager.errored = true;
-				DualMongooseWritesManager.connectionErrors.push(error as Error);
+				this.errored = true;
+				this.connectionErrors.push(error as Error);
 			}
 		}
 
-		if (DualMongooseWritesManager.errored) {
+		if (this.errored) {
 			console.error(
 				"The following connection errors were received: ",
-				DualMongooseWritesManager.connectionErrors
+				this.connectionErrors
 			);
 			throw new Error("Failed to connect to MongoDB");
 		}
 
 		// Setup debug interception
-		DualMongooseWritesManager.unsubscribeFromOpLogs = onMongoDBWriteEvent(
+		this.unsubscribeFromOpLogs = onMongoDBWriteEvent(
 			async (collectionName, method, ...args) => {
 				const opPromises: Promise<any>[] = [];
-				for (const connection of DualMongooseWritesManager.secondaryConnections) {
+				for (const connection of this.secondaryConnections) {
 					const connectionDb = connection.nativeConnection.db;
 					const collectionRef = connectionDb.collection(collectionName);
 					opPromises.push(collectionRef?.[method]?.(...args));
@@ -72,41 +72,21 @@ class DualMongooseWritesManager {
 	}
 
 	async terminate() {
-		if (!DualMongooseWritesManager.initialized) return;
+		if (!this.initialized) return;
 
-		DualMongooseWritesManager.unsubscribeFromOpLogs();
+		this.unsubscribeFromOpLogs();
 
 		const closingPromises: Promise<any>[] = [];
-		for (const connection of DualMongooseWritesManager.secondaryConnections)
+		for (const connection of this.secondaryConnections)
 			closingPromises.push(connection.nativeConnection.close());
 
 		await Promise.all(closingPromises);
 
-		DualMongooseWritesManager.initialized = false;
-		DualMongooseWritesManager.connectionErrors = [];
-		DualMongooseWritesManager.errored = false;
-		DualMongooseWritesManager.secondaryConnections = [];
-		DualMongooseWritesManager.unsubscribeFromOpLogs();
-	}
-
-	get initialized() {
-		return DualMongooseWritesManager.initialized;
-	}
-
-	get secondaryConnections() {
-		return DualMongooseWritesManager.secondaryConnections;
-	}
-
-	get errored() {
-		return DualMongooseWritesManager.errored;
-	}
-
-	get connectionErrors() {
-		return DualMongooseWritesManager.connectionErrors;
-	}
-
-	get unsubscribeFromOpLogs() {
-		return DualMongooseWritesManager.unsubscribeFromOpLogs;
+		this.initialized = false;
+		this.connectionErrors = [];
+		this.errored = false;
+		this.secondaryConnections = [];
+		this.unsubscribeFromOpLogs();
 	}
 }
 
