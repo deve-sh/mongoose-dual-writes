@@ -54,6 +54,7 @@ That's it! The writes falling under the following operations would get transferr
 - `findOneAndDelete`
 - `findOneAndRemove`
 - `findOneAndReplace`
+- `save`
 
 ### Issues and Feature Requests
 
