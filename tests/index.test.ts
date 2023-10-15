@@ -1,5 +1,5 @@
 import mongoose, { type Mongoose } from "mongoose";
-import { Manager } from "../src";
+import Manager from "../src";
 
 import DummyModel from "./mocks/dummy-model";
 
