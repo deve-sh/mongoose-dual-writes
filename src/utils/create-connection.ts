@@ -2,7 +2,7 @@ import mongoose, { type ConnectOptions } from "mongoose";
 
 const createConnection = async (
 	connectionURI: string,
-	options: ConnectOptions
+	options?: ConnectOptions
 ) => {
 	try {
 		return mongoose.createConnection(connectionURI, options);

@@ -11,7 +11,7 @@ import onMongoDBWriteEvent from "../utils/on-mongoose-write-event";
 type InitArgs = {
 	secondaryConnections: {
 		uri: string;
-		options: ConnectOptions & { enabled?: boolean; primary?: boolean };
+		options?: ConnectOptions & { enabled?: boolean; primary?: boolean };
 	}[];
 };
 
@@ -35,7 +35,7 @@ class DualMongooseWritesManager {
 
 		const connectionPromises: Promise<MongooseConnection>[] = [];
 		const parametersForEnabledConnections = args.secondaryConnections.filter(
-			(connection) => connection.options.enabled
+			(connection) => !connection.options || !connection.options.enabled
 		);
 		for (const connectionArgs of parametersForEnabledConnections)
 			connectionPromises.push(
